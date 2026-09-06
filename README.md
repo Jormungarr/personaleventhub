@@ -21,6 +21,10 @@
 
 ![新建事件](screenshots/new-event.png)
 
+事件详情 · 画布图片并排展示：
+
+![事件详情](screenshots/board-event.png)
+
 ## 项目结构
 
 ```
