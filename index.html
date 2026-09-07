@@ -68,6 +68,13 @@ main{position:relative;z-index:3;display:flex;flex-direction:column;gap:18px;pad
 .chip.on{color:#0a0e1d;font-weight:600;background:linear-gradient(135deg,#cfe3ff,#9adcff);box-shadow:0 0 14px rgba(130,180,255,.35)}
 .chip .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px}
 .filterbar .right{margin-left:auto;display:flex;gap:10px;align-items:center;font-size:12px;color:var(--dim)}
+.searchbox{display:flex;align-items:center;gap:7px;width:264px;padding:0 8px 0 11px;border:1px solid var(--brd);border-radius:999px;background:rgba(10,15,35,.55);color:var(--faint);transition:.25s}
+.searchbox:focus-within{border-color:#7f8dff;box-shadow:0 0 0 3px rgba(127,141,255,.14);color:#8f9dff}
+.searchbox input{flex:1;min-width:0;border:none;outline:none;background:none;color:#eef2ff;font-size:13px;padding:8px 0;font-family:inherit}
+.searchbox input::placeholder{color:var(--faint)}
+.s-count{font-size:11px;color:#8f9dff;white-space:nowrap}
+.s-clear{display:none;flex:none;width:20px;height:20px;border:none;border-radius:50%;background:rgba(255,255,255,.08);color:var(--dim);font-size:10px;cursor:pointer;transition:.2s}
+.s-clear:hover{background:rgba(255,107,129,.3);color:#fff}
 select,option{background:#101731;color:var(--ink);border:1px solid var(--brd2);border-radius:9px;padding:6px 9px;font-size:12.5px;outline:none}
 
 /* ============ 详情内容（飞出大卡 / 列表共用样式） ============ */
@@ -127,6 +134,7 @@ select,option{background:#101731;color:var(--ink);border:1px solid var(--brd2);b
 .wheel{position:absolute;left:0;top:0;width:0;height:0;transform-style:preserve-3d;will-change:transform}
 .wheel.anim{transition:transform .9s cubic-bezier(.22,.75,.25,1)}
 .wcard{position:absolute;left:0;top:0;width:176px;height:234px;margin-left:-88px;margin-top:-118px;border-radius:16px;padding:16px 14px 13px;display:flex;flex-direction:column;cursor:pointer;user-select:none;backface-visibility:hidden;will-change:transform;transition:opacity .4s ease,filter .3s ease,box-shadow .3s ease;border:1px solid rgba(255,255,255,.13);background:linear-gradient(168deg,rgba(255,255,255,.11),rgba(255,255,255,.028) 40%),linear-gradient(160deg,#141d40,#0a1028 75%);box-shadow:0 0 12px -2px var(--sc),0 0 28px -8px var(--sc);overflow:hidden}
+.wcard.hit{outline:2px solid var(--sc,#8b7bff);outline-offset:5px;filter:brightness(1.22)}
 .wcard::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--sc);box-shadow:0 0 12px var(--sc),0 14px 30px -6px var(--sc)}
 .wcard::after{content:"";position:absolute;left:0;right:0;top:0;bottom:0;border-radius:16px;box-shadow:inset 0 0 34px rgba(0,0,0,.35);pointer-events:none}
 .wcard .wtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
@@ -207,9 +215,16 @@ select,option{background:#101731;color:var(--ink);border:1px solid var(--brd2);b
 
 /* ============ 事件图片（详情内与事件信息并排） ============ */
 .dp-layout{display:flex;flex:1;min-height:0}
-.dp-main{flex:1;min-width:0;display:flex;flex-direction:column}
-.dp-side{width:322px;flex:none;border-left:1px solid var(--brd);padding:16px 16px 14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;background:rgba(6,10,24,.42)}
-.dp-side .sec-title{margin-top:0}
+.dp-col{flex:none;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+.dp-col.mid{flex:1;min-width:340px;overflow:hidden}
+.dp-col.ach{border-right:1px solid var(--brd);background:rgba(6,10,24,.32);padding:16px 14px 14px}
+.dp-col.img{border-left:1px solid var(--brd);background:rgba(6,10,24,.42);padding:16px 14px 14px}
+.dp-col-head{flex:none;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;letter-spacing:1.5px;color:var(--faint);margin-bottom:12px}
+.dp-split{width:6px;flex:none;cursor:col-resize;position:relative;background:rgba(255,255,255,.03);transition:background .2s}
+.dp-split::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:2px;height:34px;border-radius:2px;background:rgba(255,255,255,.22)}
+.dp-split:hover,.dp-split.drag{background:rgba(127,141,255,.38)}
+body.resizing{cursor:col-resize;user-select:none}
+body.resizing .fly-card{transition:none!important}
 .dp-imgs{display:flex;flex-direction:column;gap:12px}
 .dp-img{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--brd2);background:#f4f6fc}
 .dp-img img{width:100%;height:190px;object-fit:contain;display:block;cursor:zoom-in;transition:.2s}
@@ -217,7 +232,21 @@ select,option{background:#101731;color:var(--ink);border:1px solid var(--brd2);b
 .dp-img-del{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:7px;border:none;background:rgba(10,14,32,.82);color:#ff7a8e;font-size:11px;cursor:pointer;opacity:0;transition:.2s}
 .dp-img:hover .dp-img-del{opacity:1}
 .dp-img-del:hover{background:#3a1220;color:#fff}
-@media (max-width:1240px){.dp-side{width:280px}}
+
+/* ============ 成果 / 进展时间线（左栏） ============ */
+.ach-add{flex:none;font-size:11.5px;padding:4px 10px;border-radius:999px;border:1px solid rgba(127,141,255,.45);background:rgba(127,141,255,.12);color:#aeb9ff;cursor:pointer;letter-spacing:1px;transition:.2s}
+.ach-add:hover{background:rgba(127,141,255,.26);color:#fff;box-shadow:0 0 12px rgba(127,141,255,.35)}
+.ach-list{display:flex;flex-direction:column;gap:9px;min-height:0}
+.ach-item{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.045);border:1px solid var(--brd);border-radius:12px;padding:10px 12px;position:relative;transition:.2s;flex:none}
+.ach-item:hover{border-color:rgba(127,141,255,.4);background:rgba(127,141,255,.07)}
+.ach-dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#7f8dff,#4dd8ff);margin-top:6px;flex:none;box-shadow:0 0 9px rgba(127,141,255,.8)}
+.ach-body{flex:1;min-width:0}
+.ach-body p{margin:0;font-size:13px;color:#dfe5ff;line-height:1.6;word-break:break-word}
+.ach-date{display:block;margin-top:4px;font-size:11px;color:var(--dim)}
+.ach-del{flex:none;width:22px;height:22px;border-radius:7px;border:none;background:rgba(10,14,32,.82);color:#ff7a8e;font-size:11px;cursor:pointer;opacity:0;transition:.2s;margin-top:2px}
+.ach-item:hover .ach-del{opacity:1}
+.ach-del:hover{background:#3a1220;color:#fff}
+.ach-empty{font-size:12px;color:var(--faint);padding:12px 2px;letter-spacing:.5px}
 
 /* ============ 弹窗 / 提示 ============ */
 #overlay{position:fixed;inset:0;z-index:60;background:rgba(3,6,15,.62);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px}
@@ -247,6 +276,8 @@ select,option{background:#101731;color:var(--ink);border:1px solid var(--brd2);b
 /* ============ 存到事件弹层 / 大图查看 ============ */
 #boardPick{position:fixed;inset:0;z-index:61;background:rgba(3,6,15,.62);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px}
 #boardPick.show{display:flex}
+#achPick{position:fixed;inset:0;z-index:62;background:rgba(3,6,15,.62);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px}
+#achPick.show{display:flex}
 .modal.pick{width:min(460px,94vw)}
 .pick-tip{font-size:12px;color:var(--faint);line-height:1.7;padding:2px 24px 14px}
 .pick-list{display:flex;flex-direction:column;gap:8px;padding:0 24px 18px;max-height:46vh;overflow:auto}
@@ -291,6 +322,12 @@ select,option{background:#101731;color:var(--ink);border:1px solid var(--brd2);b
 
 <main>
   <div class="filterbar panel">
+    <div class="searchbox">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.8-3.8"/></svg>
+      <input type="text" id="searchInput" placeholder="搜索事件 · 标题 / 标签 / 分类" autocomplete="off">
+      <span class="s-count" id="sCount"></span>
+      <button class="s-clear" id="sClear" title="清空搜索">✕</button>
+    </div>
     <div class="chip on" data-f="all">全部</div>
     <div class="chip" data-f="todo"><span class="dot" style="background:var(--c-todo)"></span>待办</div>
     <div class="chip" data-f="doing"><span class="dot" style="background:var(--c-doing)"></span>进行中</div>
@@ -422,6 +459,25 @@ select,option{background:#101731;color:var(--ink);border:1px solid var(--brd2);b
   <div class="img-cap" id="imgLightCap"></div>
 </div>
 
+<!-- 记录成果 / 进展弹层 -->
+<div class="overlay" id="achPick">
+  <div class="modal pick">
+    <div class="m-head">
+      <h3>记录进展 / 成果</h3>
+      <button class="m-close" id="achPickX">✕</button>
+    </div>
+    <p class="pick-tip">记录这条事件的当前进展或已取得的成果，会以时间线形式展示在事件详情中。</p>
+    <div class="m-form">
+      <div class="field full"><label>内容 <em>*</em></label><textarea id="achText" maxlength="300" placeholder="例如：完成特征工程，AUC 提升至 0.87"></textarea></div>
+      <div class="field"><label>日期（可选）</label><input type="date" id="achDate"></div>
+    </div>
+    <div class="m-foot">
+      <button class="btn ghost" id="achCancel">取消</button>
+      <button class="btn primary" id="achSave">添加</button>
+    </div>
+  </div>
+</div>
+
 <script>
   /* 本地 Excalidraw 资源：字体从 /excalidraw-assets/ 加载（完全离线）；AI 扩展 chunk 本地不存在会自动禁用 */
   window.EXCALIDRAW_ASSET_PATH='/';
@@ -459,7 +515,8 @@ const SVGS={
 /* ---------- 状态与本地持久化（events.json） ---------- */
 const state={
   events:[],
-  filter:'all',sort:'new',view:'wheel',focus:0,rot:0,playing:true,editId:null,armedId:null
+  filter:'all',sort:'new',view:'wheel',focus:0,rot:0,playing:true,editId:null,armedId:null,
+  query:''
 };
 // 串行保存：保证多次连续写入按序到达服务端，防止旧数据覆盖新数据
 let saveQ=Promise.resolve();
@@ -486,7 +543,30 @@ function sortList(evs){
   }
   return c;
 }
-const shown=()=>sortList(state.events.filter(e=>state.filter==='all'||e.status===state.filter));
+/* ---------- 搜索召回：匹配权重 标题(3) > 标签/分类(2) > 描述(1) ---------- */
+function matchRank(e,q){
+  q=(q||'').trim().toLowerCase();
+  if(!q)return 0;
+  if((e.title||'').toLowerCase().includes(q))return 3;
+  if((e.tags||[]).some(t=>String(t).toLowerCase().includes(q)))return 2;
+  if((e.cat||'').toLowerCase().includes(q))return 2;
+  if((e.desc||'').toLowerCase().includes(q))return 1;
+  return -1;
+}
+const shown=()=>{
+  const evs=sortList(state.events.filter(e=>state.filter==='all'||e.status===state.filter));
+  const q=(state.query||'').trim();
+  if(!q)return evs;
+  // 匹配项置顶（按权重排序），非匹配项保留在环上压暗展示
+  const hit=evs.filter(e=>matchRank(e,q)>=0).sort((a,b)=>matchRank(b,q)-matchRank(a,q));
+  const miss=evs.filter(e=>matchRank(e,q)<0);
+  return [...hit,...miss];
+};
+
+/* ---------- 详情三栏宽度记忆（左=成果 / 右=图片，可拖拽调节） ---------- */
+function loadDpW(){try{return Object.assign({ach:280,img:300},JSON.parse(localStorage.getItem('eventhub.dpW')||'{}'))}catch(e){return {ach:280,img:300}}}
+const dpW=loadDpW();
+function saveDpW(){try{localStorage.setItem('eventhub.dpW',JSON.stringify(dpW))}catch(e){}}
 const isLate=e=>!!e.date&&e.date<nowISO()&&e.status!=='done';
 const fmtDate=s=>s?s.slice(5):'';
 
@@ -560,11 +640,14 @@ function layoutWheel(){
 function applyWheelFx(){
   const list=shown(),cards=[...$('wheel').children],n=list.length;
   if(!n)return;
+  const q=(state.query||'').trim();
   const step=360/n;
   cards.forEach((card,i)=>{
     let d=(i-state.focus)%n;if(d<0)d+=n;if(d>n/2)d-=n;d*=step;
-    card.style.opacity=Math.max(.1,1-Math.abs(d)/112).toFixed(2);
+    const hit=q&&matchRank(list[i],q)>=0;
+    card.style.opacity=q?(hit?Math.max(.35,1-Math.abs(d)/112).toFixed(2):'0.16'):Math.max(.1,1-Math.abs(d)/112).toFixed(2);
     card.classList.toggle('front',i===state.focus);
+    card.classList.toggle('hit',!!hit);
   });
   const dots=$('navDots');dots.innerHTML='';
   list.forEach((e,i)=>{const b=document.createElement('i');b.classList.toggle('on',i===state.focus);b.title=esc(e.title);b.onclick=()=>goTo(i);dots.appendChild(b);});
@@ -583,46 +666,63 @@ function goTo(i,anim=true){
 }
 function wheelToId(id){const list=shown();const i=list.findIndex(e=>e.id===id);if(i>=0)goTo(i);}
 
-/* ---------- 详情片段（飞出大卡） ---------- */
+/* ---------- 详情片段（飞出大卡）：左=成果进度 / 中=详情 / 右=图片，栏宽可拖拽调节 ---------- */
 function dpMarkup(ev){
   const late=isLate(ev),p=prioOf(ev),f=effOf(ev);
   const prog=ev.status==='done'?100:ev.status==='doing'?55:8;
   const imgs=(ev.images&&ev.images.length)?ev.images:[];
-  const side=imgs.length?`<div class="dp-side">
-    <div class="sec-title">IMAGES 图片 · ${imgs.length}</div>
+  const ach=(ev.ach||[]).slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const left=`<div class="dp-col ach" style="width:${dpW.ach}px">
+    <div class="dp-col-head"><span>ACHIEVEMENTS 成果 / 进展 · ${ach.length}</span><button class="ach-add" data-achadd title="记录一条进展或成果">+ 记录</button></div>
+    <div class="ach-list">${ach.length?ach.map(a=>`
+      <div class="ach-item">
+        <span class="ach-dot"></span>
+        <div class="ach-body">
+          <p>${esc(a.text)}</p>
+          <span class="ach-date">${a.date?fmtDate(a.date)+' · ':''}${new Date(a.createdAt).toLocaleDateString('zh-CN')}</span>
+        </div>
+        <button class="ach-del" data-achdel="${a.id}" title="删除这条记录">✕</button>
+      </div>`).join(''):'<div class="ach-empty">暂无进展记录 · 点击右上「+ 记录」添加</div>'}</div>
+  </div>`;
+  const right=imgs.length?`<div class="dp-col img" style="width:${dpW.img}px">
+    <div class="dp-col-head"><span>IMAGES 图片 · ${imgs.length}</span></div>
     <div class="dp-imgs">${imgs.map(im=>`
       <div class="dp-img" data-img="${im.id}">
         <img src="${im.dataURL}" alt="${esc(im.name)}" loading="lazy" title="点击查看大图">
         <button class="dp-img-del" data-imgdel="${im.id}" title="删除图片">✕</button>
       </div>`).join('')}</div>
   </div>`:'';
-  return `<div class="dp-layout${side?' has-side':''}">
-  <div class="dp-main">
-  <div class="dp-head">
-    <div class="state-badge">${SVGS[ev.status]}</div>
-    <div class="dp-titles">
-      <h2>${esc(ev.title)}</h2>
-      <div class="sub"><span style="color:${ST[ev.status].color}">◆ ${ST[ev.status].label}</span><span style="color:${PR[p].color}">● ${PR[p].label}优先级</span><span style="color:${EF[f].color}">⚒ 工程量${EF[f].label}</span></div>
+  return `<div class="dp-layout">
+  ${left}
+  <div class="dp-split" data-split="l" title="拖拽调节成果栏宽度"></div>
+  <div class="dp-col mid">
+    <div class="dp-head">
+      <div class="state-badge">${SVGS[ev.status]}</div>
+      <div class="dp-titles">
+        <h2>${esc(ev.title)}</h2>
+        <div class="sub"><span style="color:${ST[ev.status].color}">◆ ${ST[ev.status].label}</span><span style="color:${PR[p].color}">● ${PR[p].label}优先级</span><span style="color:${EF[f].color}">⚒ 工程量${EF[f].label}</span></div>
+      </div>
+    </div>
+    <div class="dp-body">
+      <div class="meta-row"><span>分类</span><b>${esc(ev.cat)}</b></div>
+      <div class="meta-row"><span>截止</span><b class="${late?'late':''}">${ev.date||'未设定'}${late?' · 已逾期':''}</b></div>
+      <div class="meta-row"><span>创建于</span><b>${new Date(ev.createdAt).toLocaleDateString('zh-CN')}</b></div>
+      ${(ev.tags&&ev.tags.length)?`<div class="tags">${ev.tags.map(t=>`<span class="tag">#${esc(t)}</span>`).join('')}</div>`:''}
+      <div class="sec-title">DETAILS 详情</div>
+      <div class="dp-desc">${esc(ev.desc)||'<i style="color:var(--faint)">暂无详细描述…</i>'}</div>
+    </div>
+    <div class="status-line">
+      <span style="color:${ST[ev.status].color}">${ST[ev.status].label} ${prog}%</span>
+      <div class="bar"><i style="width:${prog}%;background:linear-gradient(90deg,${ST[ev.status].color},#9fe8ff)"></i></div>
+    </div>
+    <div class="dp-actions" style="padding:0 22px 18px">
+      <button class="btn ${ev.status==='done'?'ghost':'primary'}" data-act="done">${ev.status==='done'?'恢复为待办':'标记已完成'}</button>
+      <button class="btn" data-act="edit">编辑</button>
+      <button class="btn danger" data-act="del">删除</button>
     </div>
   </div>
-  <div class="dp-body">
-    <div class="meta-row"><span>分类</span><b>${esc(ev.cat)}</b></div>
-    <div class="meta-row"><span>截止</span><b class="${late?'late':''}">${ev.date||'未设定'}${late?' · 已逾期':''}</b></div>
-    <div class="meta-row"><span>创建于</span><b>${new Date(ev.createdAt).toLocaleDateString('zh-CN')}</b></div>
-    ${(ev.tags&&ev.tags.length)?`<div class="tags">${ev.tags.map(t=>`<span class="tag">#${esc(t)}</span>`).join('')}</div>`:''}
-    <div class="sec-title">DETAILS 详情</div>
-    <div class="dp-desc">${esc(ev.desc)||'<i style="color:var(--faint)">暂无详细描述…</i>'}</div>
-  </div>
-  <div class="status-line">
-    <span style="color:${ST[ev.status].color}">${ST[ev.status].label} ${prog}%</span>
-    <div class="bar"><i style="width:${prog}%;background:linear-gradient(90deg,${ST[ev.status].color},#9fe8ff)"></i></div>
-  </div>
-  <div class="dp-actions" style="padding:0 22px 18px">
-    <button class="btn ${ev.status==='done'?'ghost':'primary'}" data-act="done">${ev.status==='done'?'恢复为待办':'标记已完成'}</button>
-    <button class="btn" data-act="edit">编辑</button>
-    <button class="btn danger" data-act="del">删除</button>
-  </div>
-  </div>${side}</div>`;
+  ${right?`<div class="dp-split" data-split="r" title="拖拽调节图片栏宽度"></div>`+right:''}
+  </div>`;
 }
 
 /* ---------- 列表视图 ---------- */
@@ -651,6 +751,7 @@ function renderList(){
       <div class="ev-meta">
         <span class="tag2" style="color:${PR[p].color};border-color:${PR[p].color}55">${PR[p].label}优先级</span>
         <span class="tag2" style="color:${EF[f].color};border-color:${EF[f].color}55">⚒ ${EF[f].label}工程量</span>
+        ${(e.ach&&e.ach.length)?`<span class="tag2" style="color:#aeb9ff;border-color:#7f8dff55">🏆 ${e.ach.length} 条成果</span>`:''}
         <span class="tag2">${esc(e.cat)}</span>
         ${(e.tags||[]).slice(0,3).map(t=>`<span class="tag2">#${esc(t)}</span>`).join('')}
         <span class="${late?'late':''}">${e.date||'—'}${late?' 逾期':''}</span>
@@ -738,6 +839,43 @@ document.querySelectorAll('.filterbar .chip').forEach(ch=>ch.addEventListener('c
   state.filter=ch.dataset.f;state.focus=0;render();
 }));
 $('sortSel').addEventListener('change',e=>{state.sort=e.target.value;state.focus=0;render();});
+
+/* ---------- 搜索召回：防抖输入 → 匹配置顶 → 波轮转到最前方 ---------- */
+let searchT=null;
+function updateSearchUI(){
+  const q=(state.query||'').trim();
+  const n=state.events.filter(e=>(state.filter==='all'||e.status===state.filter)&&matchRank(e,q)>=0).length;
+  $('sCount').textContent=q?(n?n+' 个匹配':'无匹配'):'';
+  $('sClear').style.display=q?'':'none';
+}
+function applySearch(){
+  if(state.view==='board'){renderBoard();return;}
+  state.focus=0;
+  render();
+  const q=(state.query||'').trim();
+  if(q&&shown().length)goTo(0,true); // 动画召回到第一个匹配正面
+  updateSearchUI();
+}
+function clearSearch(){
+  $('searchInput').value='';
+  state.query='';
+  render();
+  updateSearchUI();
+}
+$('searchInput').addEventListener('input',e=>{
+  clearTimeout(searchT);
+  searchT=setTimeout(()=>{state.query=e.target.value;applySearch();},250);
+});
+$('sClear').addEventListener('click',()=>{clearSearch();$('searchInput').focus();});
+function nextMatch(){
+  const q=(state.query||'').trim();if(!q)return;
+  const list=shown();
+  const idxs=[];list.forEach((e,i)=>{if(matchRank(e,q)>=0)idxs.push(i);});
+  if(!idxs.length)return;
+  let nx=idxs.find(i=>i>state.focus);
+  if(nx===undefined)nx=idxs[0];
+  goTo(nx,true);
+}
 $('viewSeg').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   if(state.view==='board'&&b.dataset.v!=='board')flushBoardSave();
@@ -759,7 +897,11 @@ function syncPlayIcon(){
 document.addEventListener('keydown',e=>{
   if($('imgLight').classList.contains('show')){if(e.key==='Escape')closeImgLight();return;}
   if($('boardPick').classList.contains('show')){if(e.key==='Escape')closeBoardPick();return;}
+  if($('achPick').classList.contains('show')){if(e.key==='Escape')closeAchModal();return;}
   if($('overlay').classList.contains('show')){if(e.key==='Escape')closeModal();return;}
+  // 搜索交互：Enter 循环跳转匹配项 / Esc 清空搜索（不要求焦点在搜索框）
+  if(e.key==='Enter'&&(state.query||'').trim()&&state.view!=='board'){nextMatch();return;}
+  if(e.key==='Escape'&&($('searchInput').value||(state.query||'').trim())){clearSearch();return;}
   const t=(e.target.tagName||'').toLowerCase();
   if(t==='input'||t==='textarea'||t==='select')return;
   if(state.view==='board')return; // 工作台模式：键盘交给内嵌编辑器
@@ -866,10 +1008,11 @@ function flyShow(id){
   flyInner.innerHTML=dpMarkup(ev);
   flyInner.classList.remove('on');
   flyEl.classList.add('show');
-  const hasSide=!!(ev.images&&ev.images.length);
-  const tW=Math.min(hasSide?1060:680,Math.max(340,stage.width-150));
+  const hasImg=!!(ev.images&&ev.images.length);
+  const midBase=hasImg?460:580;
+  const tW=Math.min(dpW.ach+6+midBase+(hasImg?6+dpW.img:0),Math.max(430,stage.width-150));
   c.style.cssText='left:-9000px;top:0;width:'+tW+'px;height:auto;opacity:1;transition:none;visibility:hidden';
-  const natH=Math.min(c.scrollHeight+18,stage.height-150);
+  const natH=Math.min(c.scrollHeight+18,stage.height-60);
   const tL=Math.max(8,(stage.width-tW)/2),tT=Math.max(8,(stage.height-natH)/2-24);
   const card=wheel.querySelector('.wcard[data-id="'+id+'"]');
   const fr=card?card.getBoundingClientRect():null;
@@ -922,12 +1065,59 @@ $('flyInner').addEventListener('click',e=>{
     }
     return;
   }
+  // 成果：打开记录弹层
+  const achAdd=e.target.closest('[data-achadd]');
+  if(achAdd){openAchModal();return;}
+  // 成果：删除条目
+  const achDel=e.target.closest('[data-achdel]');
+  if(achDel){
+    const ev=state.events.find(x=>x.id===flyId);
+    if(ev&&ev.ach){
+      ev.ach=ev.ach.filter(a=>a.id!==achDel.dataset.achdel);
+      save();
+      flyShow(flyId);
+      toast('记录已删除','✕');
+    }
+    return;
+  }
   const b=e.target.closest('button');
   if(!b||!b.dataset.act)return;
   const act=b.dataset.act,id=flyId;
   if(act==='done'){closeFly(true);if(id)toggleDone(id);}
   else if(act==='edit'){closeFly(true);if(id)openModal(id);}
   else if(act==='del'&&id)handleDel(b,id);
+});
+
+/* ---------- 详情三栏宽度拖拽调节（手柄拖动 + 记忆） ---------- */
+let splitDrag=null;
+flyInner.addEventListener('pointerdown',e=>{
+  const sp=e.target.closest('.dp-split');
+  if(!sp)return;
+  e.preventDefault();
+  const side=sp.dataset.split==='l'?'ach':'img';
+  splitDrag={side,startX:e.clientX,base:dpW[side]};
+  document.body.classList.add('resizing');
+  sp.classList.add('drag');
+});
+document.addEventListener('pointermove',e=>{
+  if(!splitDrag)return;
+  const hasImg=!!document.querySelector('.dp-col.img');
+  const cardW=flyCard.getBoundingClientRect().width;
+  const other=splitDrag.side==='ach'?(hasImg?6+dpW.img:0):(dpW.ach+6);
+  const maxW=Math.max(200,Math.min(560,cardW-6-other-340));
+  let dx=e.clientX-splitDrag.startX;
+  let w=splitDrag.side==='ach'?splitDrag.base+dx:splitDrag.base-dx;
+  w=Math.max(200,Math.min(maxW,w));
+  dpW[splitDrag.side]=Math.round(w);
+  const col=document.querySelector(splitDrag.side==='ach'?'.dp-col.ach':'.dp-col.img');
+  if(col)col.style.width=dpW[splitDrag.side]+'px';
+});
+document.addEventListener('pointerup',()=>{
+  if(!splitDrag)return;
+  splitDrag=null;
+  document.body.classList.remove('resizing');
+  document.querySelectorAll('.dp-split').forEach(s=>s.classList.remove('drag'));
+  saveDpW();
 });
 
 /* ---------- 事件图片大图查看 ---------- */
@@ -939,6 +1129,30 @@ function openImgLight(im){
 function closeImgLight(){$('imgLight').classList.remove('show');$('imgLightImg').src='';}
 $('imgLightX').addEventListener('click',closeImgLight);
 $('imgLight').addEventListener('click',e=>{if(e.target.id==='imgLight')closeImgLight();});
+
+/* ---------- 记录成果 / 进展弹层 ---------- */
+function openAchModal(){
+  $('achText').value='';
+  $('achDate').value='';
+  $('achPick').classList.add('show');
+  setTimeout(()=>$('achText').focus(),60);
+}
+function closeAchModal(){$('achPick').classList.remove('show');}
+$('achPickX').addEventListener('click',closeAchModal);
+$('achCancel').addEventListener('click',closeAchModal);
+$('achPick').addEventListener('click',e=>{if(e.target.id==='achPick')closeAchModal();});
+$('achSave').addEventListener('click',()=>{
+  const text=$('achText').value.trim();
+  if(!text){toast('请先填写内容','⚠');return;}
+  const ev=state.events.find(x=>x.id===flyId);
+  if(!ev){closeAchModal();toast('事件不存在','⚠');return;}
+  if(!ev.ach)ev.ach=[];
+  ev.ach.unshift({id:uid(),text,date:$('achDate').value,createdAt:Date.now()});
+  save();
+  closeAchModal();
+  flyShow(flyId);
+  toast('进展已记录','✓');
+});
 
 /* ---------- 列表视图操作（事件委托） ---------- */
 $('listView').addEventListener('click',e=>{
