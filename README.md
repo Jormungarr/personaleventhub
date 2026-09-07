@@ -28,6 +28,10 @@
 
 ![事件详情](screenshots/board-event.png)
 
+工作台 · 本地 Excalidraw 画布编辑器：
+
+![工作台](screenshots/workbench.png)
+
 ## 项目结构
 
 ```
